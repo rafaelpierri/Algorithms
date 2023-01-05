@@ -10,10 +10,8 @@ public class Percolation {
     public Percolation(int n) {
         if (n < 1) throw new IllegalArgumentException();
         this.n = n;
-        this.unionFind = new WeightedQuickUnionUF(n * n + 2);
-        this.openSites = new boolean[n * n + 2];
-        this.openSites[0] = true;
-        this.openSites[this.openSites.length - 1] = true;
+        this.unionFind = new WeightedQuickUnionUF(n * n);
+        this.openSites = new boolean[n * n];
     }
 
     public void open(int row, int col) {
@@ -25,19 +23,11 @@ public class Percolation {
         this.openSites[target] = true;
         this.openSitesCount++;
 
-        if (target <= n) {
-            unite(0, target);
-        }
-
-        if (target > n * (n - 1)) {
-            unite(n * n + 1, target);
-        }
-
-        if ((target - 1) % n != 0 && this.openSites[target - 1]) {
+        if (target > 0 && this.openSites[target - 1]) {
             unite(target - 1, target);
         }
 
-        if (target % n != 0 && this.openSites[target + 1]) {
+        if (target < n * n - 1 && this.openSites[target + 1]) {
             unite(target + 1, target);
         }
 
@@ -45,7 +35,7 @@ public class Percolation {
             unite(target - n, target);
         }
 
-        if (target + n <= n * n && this.openSites[target + n]) {
+        if (target + n < n * n && this.openSites[target + n]) {
             unite(target + n, target);
         }
 
@@ -77,13 +67,12 @@ public class Percolation {
 
     public boolean isFull(int row, int col) {
         validateArguments(row, col);
-        int target = getTarget(row, col);
 
-        return this.unionFind.find(0) == this.unionFind.find(target);
+        return true;
     }
 
     private int getTarget(int row, int col) {
-        return this.n * (row - 1) + col;
+        return this.n * (row - 1) + col - 1;
     }
 
     // returns the number of open sites
@@ -93,7 +82,7 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return this.unionFind.find(0) == this.unionFind.find(n * n + 1);
+        return true;
     }
 
     // test client (optional)
