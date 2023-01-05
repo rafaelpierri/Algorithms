@@ -54,7 +54,7 @@ public class PercolationTest {
             percolation.open(5, 6);
             assertFalse(percolation.percolates());
         }
-        
+
         @Test
         void doesNotBackwash() {
             Percolation percolation = new Percolation(3);

@@ -58,9 +58,6 @@ public class Percolation {
     }
 
     private void unite(int targetA, int targetB) {
-        int valueA = this.unionFind.find(targetA);
-        int valueB = this.unionFind.find(targetB);
-
         if (this.settings[targetA][CONNECTS_WITH_TOP] || this.settings[targetB][CONNECTS_WITH_TOP]) {
             this.settings[targetA][CONNECTS_WITH_TOP] = true;
             this.settings[targetB][CONNECTS_WITH_TOP] = true;
@@ -75,11 +72,7 @@ public class Percolation {
             this.percolates = true;
         }
 
-        if (valueA < valueB) {
-            this.unionFind.union(targetA, targetB);
-        } else {
-            this.unionFind.union(targetB, targetA);
-        }
+        this.unionFind.union(targetA, targetB);
     }
 
     private void validateArguments(int row, int col) {
