@@ -1,5 +1,4 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +44,29 @@ public class PercolationTest {
 
     @Nested
     class Percolates {
-        @Disabled
+        @Test
+        void passesInput6TestCase() throws IOException {
+            Percolation percolation = new Percolation(6);
+            percolation.open(1, 6);
+            percolation.open(2, 6);
+            percolation.open(3, 6);
+            percolation.open(4, 6);
+            percolation.open(5, 6);
+            assertFalse(percolation.percolates());
+        }
+        
+        @Test
+        void doesNotBackwash() {
+            Percolation percolation = new Percolation(3);
+            percolation.open(2, 1);
+            percolation.open(1, 3);
+            percolation.open(2, 3);
+            percolation.open(3, 1);
+            percolation.open(3, 3);
+            assertFalse(percolation.isFull(3, 1));
+            assertTrue(percolation.percolates());
+        }
+
         @Test
         void doesNotPercolateIfThereIsNotAPathBetweenTopAndBottomVirtualNode() {
             Percolation percolation = new Percolation(3);
@@ -83,12 +104,26 @@ public class PercolationTest {
 
     @Nested
     class IsFull {
-        @Disabled
         @Test
-        void isNotFullIfThereIsNotAPathBetweenTopVirtualNodeAndTargetSite() {
+        void isNotFullIfIsOpenButDoesNotConnectWithTop() {
+            Percolation percolation = new Percolation(2);
+            percolation.open(2, 1);
+            assertFalse(percolation.isFull(2, 1));
+        }
+
+        @Test
+        void isFullIfIsOpenAndInTopRow() {
+            Percolation percolation = new Percolation(2);
+            percolation.open(1, 1);
+            assertTrue(percolation.isFull(1, 1));
+        }
+
+        @Test
+        void isFullIfIsOpenAndConnectsWithTopRow() {
             Percolation percolation = new Percolation(3);
-            percolation.open(2, 2);
-            assertFalse(percolation.isFull(2, 2));
+            percolation.open(1, 1);
+            percolation.open(2, 1);
+            assertTrue(percolation.isFull(2, 1));
         }
 
         @Test
@@ -137,36 +172,10 @@ public class PercolationTest {
             assertThrows(IllegalArgumentException.class, () -> percolation.isFull(3, 4));
         }
 
-        @Disabled
-        @Test
-        void doesNotBackwash() {
-            Percolation percolation = new Percolation(3);
-            percolation.open(2, 1);
-            percolation.open(1, 3);
-            percolation.open(2, 3);
-            percolation.open(3, 1);
-            percolation.open(3, 3);
-            assertFalse(percolation.isFull(3, 1));
-            assertTrue(percolation.percolates());
-        }
-
-        @Disabled
         @Test
         void passesInput20TestCase() throws IOException {
             Percolation percolation = loadPercolationFromResourceFile("input20.txt");
             assertFalse(percolation.isFull(18, 1));
-        }
-
-        @Disabled
-        @Test
-        void passesInput6TestCase() throws IOException {
-            Percolation percolation = new Percolation(6);
-            percolation.open(1, 6);
-            percolation.open(2, 6);
-            percolation.open(3, 6);
-            percolation.open(4, 6);
-            percolation.open(5, 6);
-            assertFalse(percolation.percolates());
         }
     }
 

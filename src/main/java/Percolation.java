@@ -2,40 +2,56 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
 
+    private static final int SITE_OPENING = 0;
+    private static final int CONNECTS_WITH_TOP = 1;
+    private static final int CONNECTS_WITH_BOTTOM = 2;
     private final int n;
-    private final boolean[] openSites;
+    private final boolean[][] settings;
     private final WeightedQuickUnionUF unionFind;
     private int openSitesCount = 0;
+    private boolean percolates;
 
     public Percolation(int n) {
         if (n < 1) throw new IllegalArgumentException();
         this.n = n;
         this.unionFind = new WeightedQuickUnionUF(n * n);
-        this.openSites = new boolean[n * n];
+        this.settings = new boolean[n * n][3];
     }
 
     public void open(int row, int col) {
         validateArguments(row, col);
 
         int target = getTarget(row, col);
-        if (this.openSites[target]) return;
+        if (this.settings[target][SITE_OPENING]) return;
 
-        this.openSites[target] = true;
+        this.settings[target][SITE_OPENING] = true;
         this.openSitesCount++;
 
-        if (target > 0 && this.openSites[target - 1]) {
+        if (target < n) {
+            this.settings[target][CONNECTS_WITH_TOP] = true;
+        }
+
+        if (target >= n * (n - 1)) {
+            this.settings[target][CONNECTS_WITH_BOTTOM] = true;
+        }
+
+        if (this.settings[target][CONNECTS_WITH_TOP] && this.settings[target][CONNECTS_WITH_BOTTOM]) {
+            this.percolates = true;
+        }
+
+        if (target > 0 && target / n == (target - 1) / n && this.settings[target - 1][SITE_OPENING]) {
             unite(target - 1, target);
         }
 
-        if (target < n * n - 1 && this.openSites[target + 1]) {
+        if (target < n * n - 1 && target / n == (target + 1) / n && this.settings[target + 1][SITE_OPENING]) {
             unite(target + 1, target);
         }
 
-        if (target - n > 0 && this.openSites[target - n]) {
+        if (target - n >= 0 && this.settings[target - n][SITE_OPENING]) {
             unite(target - n, target);
         }
 
-        if (target + n < n * n && this.openSites[target + n]) {
+        if (target + n < n * n && this.settings[target + n][SITE_OPENING]) {
             unite(target + n, target);
         }
 
@@ -44,6 +60,20 @@ public class Percolation {
     private void unite(int targetA, int targetB) {
         int valueA = this.unionFind.find(targetA);
         int valueB = this.unionFind.find(targetB);
+
+        if (this.settings[targetA][CONNECTS_WITH_TOP] || this.settings[targetB][CONNECTS_WITH_TOP]) {
+            this.settings[targetA][CONNECTS_WITH_TOP] = true;
+            this.settings[targetB][CONNECTS_WITH_TOP] = true;
+        }
+
+        if (this.settings[targetA][CONNECTS_WITH_BOTTOM] || this.settings[targetB][CONNECTS_WITH_BOTTOM]) {
+            this.settings[targetA][CONNECTS_WITH_BOTTOM] = true;
+            this.settings[targetB][CONNECTS_WITH_BOTTOM] = true;
+        }
+
+        if (this.settings[targetA][CONNECTS_WITH_TOP] && this.settings[targetB][CONNECTS_WITH_BOTTOM]) {
+            this.percolates = true;
+        }
 
         if (valueA < valueB) {
             this.unionFind.union(targetA, targetB);
@@ -62,13 +92,14 @@ public class Percolation {
     public boolean isOpen(int row, int col) {
         validateArguments(row, col);
         int target = getTarget(row, col);
-        return this.openSites[target];
+        return this.settings[target][SITE_OPENING];
     }
 
     public boolean isFull(int row, int col) {
         validateArguments(row, col);
+        int target = getTarget(row, col);
 
-        return true;
+        return this.settings[target][CONNECTS_WITH_TOP];
     }
 
     private int getTarget(int row, int col) {
@@ -82,7 +113,7 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return true;
+        return this.percolates;
     }
 
     // test client (optional)
