@@ -93,8 +93,8 @@ public class Percolation {
     public boolean isFull(int row, int col) {
         validateArguments(row, col);
         int target = getTarget(row, col);
-
-        return this.settings[target][CONNECTS_WITH_TOP];
+        int root = this.unionFind.find(target);
+        return this.settings[root][CONNECTS_WITH_TOP];
     }
 
     private int getTarget(int row, int col) {

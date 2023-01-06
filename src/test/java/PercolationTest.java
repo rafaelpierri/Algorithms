@@ -116,6 +116,16 @@ public class PercolationTest {
     @Nested
     class IsFull {
         @Test
+        void input6IsFullAfter18SitesOpened() throws IOException {
+            Percolation percolation = loadPercolationFromResourceFile("input6.txt", (args) -> {
+                if ((args.row - 1) * args.n + args.col - 1 < args.n * args.n) {
+                    args.percolation.open(args.row, args.col);
+                }
+            });
+            assertTrue(percolation.isFull(2, 1));
+        }
+
+        @Test
         void isNotFullIfIsOpenButDoesNotConnectWithTop() {
             Percolation percolation = new Percolation(2);
             percolation.open(2, 1);
