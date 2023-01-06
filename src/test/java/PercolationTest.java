@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +45,16 @@ public class PercolationTest {
 
     @Nested
     class Percolates {
+        @Test
+        void input6PercolatesAfter18SitesOpened() throws IOException {
+            Percolation percolation = loadPercolationFromResourceFile("input6.txt", (args) -> {
+                if ((args.row - 1) * args.n + args.col - 1 < args.n * args.n) {
+                    args.percolation.open(args.row, args.col);
+                }
+            });
+            assertTrue(percolation.percolates());
+        }
+
         @Test
         void passesInput6TestCase() throws IOException {
             Percolation percolation = new Percolation(6);
@@ -174,7 +185,7 @@ public class PercolationTest {
 
         @Test
         void passesInput20TestCase() throws IOException {
-            Percolation percolation = loadPercolationFromResourceFile("input20.txt");
+            Percolation percolation = loadPercolationFromResourceFile("input20.txt", (args) -> args.percolation.open(args.row, args.col));
             assertFalse(percolation.isFull(18, 1));
         }
     }
@@ -312,12 +323,13 @@ public class PercolationTest {
         }
     }
 
-    private Percolation loadPercolationFromResourceFile(String fileName) throws IOException {
+    private Percolation loadPercolationFromResourceFile(String fileName, Consumer<Args> fn) throws IOException {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
         if (inputStream == null) throw new IllegalArgumentException("File not found: " + fileName);
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream, UTF_8);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        Percolation percolation = new Percolation(Integer.parseInt(bufferedReader.readLine()));
+        int n = Integer.parseInt(bufferedReader.readLine());
+        Percolation percolation = new Percolation(n);
         while (bufferedReader.ready()) {
             String line = bufferedReader.readLine();
             Pattern pattern = Pattern.compile("\\s*(\\d+)\\s*(\\d+)");
@@ -325,11 +337,28 @@ public class PercolationTest {
             assertTrue(matcher.find());
             int row = Integer.parseInt(matcher.group(1));
             int col = Integer.parseInt(matcher.group(2));
-            percolation.open(row, col);
+            fn.accept(new Args(percolation, n, row, col));
         }
         bufferedReader.close();
         inputStreamReader.close();
         inputStream.close();
         return percolation;
+    }
+
+    class Args {
+        public int row;
+        public int col;
+        public int n;
+        public Percolation percolation;
+
+        public Args() {
+        }
+
+        public Args(Percolation percolation, int n, int row, int col) {
+            this.percolation = percolation;
+            this.n = n;
+            this.row = row;
+            this.col = col;
+        }
     }
 }

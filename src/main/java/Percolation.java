@@ -58,17 +58,19 @@ public class Percolation {
     }
 
     private void unite(int targetA, int targetB) {
-        if (this.settings[targetA][CONNECTS_WITH_TOP] || this.settings[targetB][CONNECTS_WITH_TOP]) {
-            this.settings[targetA][CONNECTS_WITH_TOP] = true;
-            this.settings[targetB][CONNECTS_WITH_TOP] = true;
+        int rootA = this.unionFind.find(targetA);
+        int rootB = this.unionFind.find(targetB);
+        if (this.settings[rootA][CONNECTS_WITH_TOP] || this.settings[rootB][CONNECTS_WITH_TOP]) {
+            this.settings[rootA][CONNECTS_WITH_TOP] = true;
+            this.settings[rootB][CONNECTS_WITH_TOP] = true;
         }
 
-        if (this.settings[targetA][CONNECTS_WITH_BOTTOM] || this.settings[targetB][CONNECTS_WITH_BOTTOM]) {
-            this.settings[targetA][CONNECTS_WITH_BOTTOM] = true;
-            this.settings[targetB][CONNECTS_WITH_BOTTOM] = true;
+        if (this.settings[rootA][CONNECTS_WITH_BOTTOM] || this.settings[rootB][CONNECTS_WITH_BOTTOM]) {
+            this.settings[rootA][CONNECTS_WITH_BOTTOM] = true;
+            this.settings[rootB][CONNECTS_WITH_BOTTOM] = true;
         }
 
-        if (this.settings[targetA][CONNECTS_WITH_TOP] && this.settings[targetB][CONNECTS_WITH_BOTTOM]) {
+        if (this.settings[rootA][CONNECTS_WITH_TOP] && this.settings[rootB][CONNECTS_WITH_BOTTOM]) {
             this.percolates = true;
         }
 
